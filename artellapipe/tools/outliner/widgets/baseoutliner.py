@@ -142,11 +142,9 @@ class BaseOutliner(outlinertree.OutlinerTree, object):
     def _on_override_added(self, override, parent):
         self._add_override(override=override, parent=parent)
         parent.expand()
-        
+
     def _on_override_removed(self, override, parent):
         parent.remove_child(override.OVERRIDE_NAME)
 
     def _on_asset_removed(self, widget):
         self.remove_widget(widget)
-
-

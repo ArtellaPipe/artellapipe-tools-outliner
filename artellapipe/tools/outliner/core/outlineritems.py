@@ -198,7 +198,7 @@ class OutlinerItem(OutlinerTreeItemWidget, object):
 
         icon = QIcon()
         icon.addPixmap(QPixmap(':/nudgeDown.png'), QIcon.Normal, QIcon.On)
-        icon.addPixmap(QPixmap(':/nudgeRight.png'), QIcon.Normal, QIcon.Off);
+        icon.addPixmap(QPixmap(':/nudgeRight.png'), QIcon.Normal, QIcon.Off)
         self._expand_btn = QPushButton()
         self._expand_btn.setStyleSheet("QPushButton#expand_btn:checked {background-color: green; border: none}")
         self._expand_btn.setStyleSheet(
