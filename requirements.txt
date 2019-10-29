@@ -1,5 +1,5 @@
 # ===================================================================
-# artellapipe-tools-artellamanager requirements file
+# artellapipe-tools-outliner requirements file
 # ===================================================================
 
-artellapipe-core
+artellapipe

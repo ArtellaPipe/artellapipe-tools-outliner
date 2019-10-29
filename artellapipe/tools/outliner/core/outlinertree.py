@@ -62,13 +62,13 @@ class OutlinerTree(base.BaseWidget, object):
         self.main_layout.addLayout(top_layout)
 
         self._refresh_btn = QPushButton()
-        self._refresh_btn.setIcon(resource.ResourceManager.instance().icon('refresh'))
+        self._refresh_btn.setIcon(resource.ResourceManager().icon('refresh'))
         self._refresh_btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         self._expand_all_btn = QPushButton()
-        self._expand_all_btn.setIcon(resource.ResourceManager.instance().icon('expand'))
+        self._expand_all_btn.setIcon(resource.ResourceManager().icon('expand'))
         self._expand_all_btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         self._collapse_all_btn = QPushButton()
-        self._collapse_all_btn.setIcon(resource.ResourceManager.instance().icon('collapse'))
+        self._collapse_all_btn.setIcon(resource.ResourceManager().icon('collapse'))
         self._collapse_all_btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
 
         top_layout.addWidget(self._refresh_btn, 0, 0, 1, 1)

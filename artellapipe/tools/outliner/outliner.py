@@ -24,15 +24,12 @@ import tpDccLib as tp
 from tpQtLib.core import qtutils, base
 from tpQtLib.widgets import stack, splitters
 
-import artellapipe.tools.outliner
 from artellapipe.utils import resource
-from artellapipe.gui import window
+from artellapipe.core import tool
 
 # from artellapipe.utils import shader
 
-logging.config.fileConfig(artellapipe.tools.outliner.get_logging_config(), disable_existing_loggers=False)
-logger = logging.getLogger(__name__)
-logger.setLevel(artellapipe.tools.outliner.get_logging_level())
+LOGGER = logging.getLogger()
 
 
 class ArtellaOutlinerSettings(base.BaseWidget, object):
@@ -46,7 +43,7 @@ class ArtellaOutlinerSettings(base.BaseWidget, object):
         super(ArtellaOutlinerSettings, self).ui()
 
         self.save_btn = QPushButton('Save')
-        self.save_btn.setIcon(resource.ResourceManager.instance().icon('save'))
+        self.save_btn.setIcon(resource.ResourceManager().icon('save'))
         self.main_layout.addWidget(self.save_btn)
 
     def setup_signals(self):
@@ -160,7 +157,7 @@ class ArtellaOutlinerWidget(QWidget, object):
         for category in reversed(outliner_categories):
             new_btn = QPushButton(category.title())
             new_btn.category = category
-            category_icon = self._project.resource.icon(category.strip().lower())
+            category_icon = resource.ResourceManager().icon(category.strip().lower())
             new_btn.setIcon(category_icon)
             new_btn.setCheckable(True)
             new_btn.clicked.connect(partial(self._on_change_outliner, new_btn))
@@ -179,7 +176,7 @@ class ArtellaOutlinerWidget(QWidget, object):
         """
 
         if outliner_widget in self._outliners:
-            logger.warning('Outliner {} already exists!'.format(outliner_widget))
+            LOGGER.warning('Outliner {} already exists!'.format(outliner_widget))
             return
 
         self._outliners.append(outliner_widget)
@@ -190,35 +187,35 @@ class ArtellaOutlinerWidget(QWidget, object):
         load_scene_shaders_action.setText('Load Shaders')
         load_scene_shaders_action.setToolTip('Load and Apply All Scene Shaders')
         load_scene_shaders_action.setStatusTip('Load and Apply All Scene Shaders')
-        load_scene_shaders_action.setIcon(resource.ResourceManager.instance().icon('shading_load'))
+        load_scene_shaders_action.setIcon(resource.ResourceManager().icon('shading_load'))
         load_scene_shaders_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         unload_scene_shaders_action = QToolButton(self)
         unload_scene_shaders_action.setText('Unload Shaders')
         unload_scene_shaders_action.setToolTip('Unload All Scene Shaders')
         unload_scene_shaders_action.setStatusTip('Unload All Scene Shaders')
-        unload_scene_shaders_action.setIcon(resource.ResourceManager.instance().icon('shading_unload'))
+        unload_scene_shaders_action.setIcon(resource.ResourceManager().icon('shading_unload'))
         unload_scene_shaders_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         update_refs_action = QToolButton(self)
         update_refs_action.setText('Sync Assets')
         update_refs_action.setToolTip('Updates all asset references to the latest published version')
         update_refs_action.setStatusTip('Updates all asset references to the latest published version')
-        update_refs_action.setIcon(resource.ResourceManager.instance().icon('sync_cloud'))
+        update_refs_action.setIcon(resource.ResourceManager().icon('sync_cloud'))
         update_refs_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         export_overrides_action = QToolButton(self)
         export_overrides_action.setText('Save Overrides')
         export_overrides_action.setToolTip('Stores overrides into disk')
         export_overrides_action.setStatusTip('Stores overrides into disk')
-        export_overrides_action.setIcon(resource.ResourceManager.instance().icon('save'))
+        export_overrides_action.setIcon(resource.ResourceManager().icon('save'))
         export_overrides_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         settings_action = QToolButton(self)
         settings_action.setText('Settings')
         settings_action.setToolTip('Outliner Settings')
         settings_action.setStatusTip('Outliner Settings')
-        settings_action.setIcon(resource.ResourceManager.instance().icon('settings'))
+        settings_action.setIcon(resource.ResourceManager().icon('settings'))
         settings_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self._toolbar.addWidget(load_scene_shaders_action)
@@ -254,7 +251,7 @@ class ArtellaOutlinerWidget(QWidget, object):
         Internal callback function that is called when Load Scene Shaders menubar button is pressed
         """
 
-        logger.warning('Load Shaders functionality not available!')
+        LOGGER.warning('Load Shaders functionality not available!')
         # shader.load_scene_shaders(project=self._project)
 
     def _on_unload_scene_shaders(self):
@@ -262,7 +259,7 @@ class ArtellaOutlinerWidget(QWidget, object):
         Internal callback function that is called when Unload Scene Shaders menubar button is pressed
         """
 
-        logger.warning('Unload Shaders functionality not available')
+        LOGGER.warning('Unload Shaders functionality not available')
         # shader.unload_shaders(project=self._project)
 
     def _on_change_outliner(self, toggled_btn):
@@ -280,18 +277,10 @@ class ArtellaOutlinerWidget(QWidget, object):
                         self._outliners_stack.slide_in_index(outliner_index)
 
 
-class ArtellaOutliner(window.ArtellaWindow, object):
+class ArtellaOutliner(tool.Tool, object):
 
-    LOGO_NAME = 'outliner_logo'
-
-    def __init__(self, project, parent=None):
-        super(ArtellaOutliner, self).__init__(
-            project=project,
-            name='OutlinerWindow',
-            title='Outliner',
-            size=(1100, 900),
-            parent=parent
-        )
+    def __init__(self, project, config):
+        super(ArtellaOutliner, self).__init__(project=project, config=config)
 
     def ui(self):
         super(ArtellaOutliner, self).ui()
@@ -300,11 +289,11 @@ class ArtellaOutliner(window.ArtellaWindow, object):
         self.main_layout.addWidget(self._outliner)
 
 
-def run(project):
-    if tp.is_maya():
-        win = window.dock_window(project=project, window_class=ArtellaOutlinerWidget)
-        return win
-    else:
-        win = ArtellaOutliner(project=project)
-        win.show()
-        return win
+# def run(project):
+#     if tp.is_maya():
+#         win = window.dock_window(project=project, window_class=ArtellaOutlinerWidget)
+#         return win
+#     else:
+#         win = ArtellaOutliner(project=project)
+#         win.show()
+#         return win

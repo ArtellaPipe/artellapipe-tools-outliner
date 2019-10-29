@@ -201,7 +201,9 @@ class OutlinerItem(OutlinerTreeItemWidget, object):
         icon.addPixmap(QPixmap(':/nudgeRight.png'), QIcon.Normal, QIcon.Off);
         self._expand_btn = QPushButton()
         self._expand_btn.setStyleSheet("QPushButton#expand_btn:checked {background-color: green; border: none}")
-        self._expand_btn.setStyleSheet("QPushButton { color:white; } QPushButton:checked { background-color: rgb(55,55, 55); border: none; } QPushButton:pressed { background-color: rgb(55,55, 55); border: none; }")  # \
+        self._expand_btn.setStyleSheet(
+            "QPushButton { color:white; } QPushButton:checked { background-color: rgb(55,55, 55); border: none; }"
+            " QPushButton:pressed { background-color: rgb(55,55, 55); border: none; }")  # \
         self._expand_btn.setFlat(True)
         self._expand_btn.setIcon(icon)
         self._expand_btn.setCheckable(True)
@@ -219,7 +221,7 @@ class OutlinerItem(OutlinerTreeItemWidget, object):
         asset_icon = self._asset_node.get_icon()
         print(asset_icon)
         if not asset_icon or asset_icon.isNull():
-            asset_icon = resource.ResourceManager.instance().icon(self.ICON_NAME)
+            asset_icon = resource.ResourceManager().icon(self.ICON_NAME)
         pixmap = asset_icon.pixmap(asset_icon.availableSizes()[-1]).scaled(20, 20, Qt.KeepAspectRatio)
         self._icon_lbl = QLabel()
         self._icon_lbl.setMaximumWidth(18)

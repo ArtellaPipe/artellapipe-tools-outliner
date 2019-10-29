@@ -24,8 +24,8 @@ from artellapipe.tools.outliner.core import outlinertree
 from artellapipe.tools.outliner.widgets import items
 
 logging.config.fileConfig(artellapipe.tools.outliner.get_logging_config(), disable_existing_loggers=False)
-logger = logging.getLogger(__name__)
-logger.setLevel(artellapipe.tools.outliner.get_logging_level())
+LOGGER = logging.getLogger()
+LOGGER.setLevel(artellapipe.tools.outliner.get_logging_level())
 
 
 class BaseOutliner(outlinertree.OutlinerTree, object):
