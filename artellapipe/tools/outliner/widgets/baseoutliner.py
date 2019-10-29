@@ -19,13 +19,10 @@ from Qt.QtCore import *
 
 import tpDccLib as tp
 
-import artellapipe.tools.outliner
 from artellapipe.tools.outliner.core import outlinertree
 from artellapipe.tools.outliner.widgets import items
 
-logging.config.fileConfig(artellapipe.tools.outliner.get_logging_config(), disable_existing_loggers=False)
 LOGGER = logging.getLogger()
-LOGGER.setLevel(artellapipe.tools.outliner.get_logging_level())
 
 
 class BaseOutliner(outlinertree.OutlinerTree, object):
@@ -86,7 +83,7 @@ class BaseOutliner(outlinertree.OutlinerTree, object):
 
     def _on_item_clicked(self, widget, event):
         if widget is None:
-            logger.warning('Selected Asset is not valid!')
+            LOGGER.warning('Selected Asset is not valid!')
             return
 
         asset_name = widget.asset_node.name
