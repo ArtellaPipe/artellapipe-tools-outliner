@@ -95,10 +95,12 @@ class ArtellaOutlinerWidget(QWidget, object):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        if tp.is_maya():
-            self.parent().layout().addLayout(self.main_layout)
-        else:
-            self.setLayout(self.main_layout)
+        # if tp.is_maya():
+        #     self.parent().layout().addLayout(self.main_layout)
+        # else:
+        #     self.setLayout(self.main_layout)
+
+        self.setLayout(self.main_layout)
 
         self._toolbar = QToolBar()
         self._setup_toolbar()
