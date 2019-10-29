@@ -1,0 +1,25 @@
+artellapipe.tools.outliner package
+==================================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   artellapipe.tools.outliner.core
+   artellapipe.tools.outliner.widgets
+
+Submodules
+----------
+
+.. toctree::
+
+   artellapipe.tools.outliner.outliner
+
+Module contents
+---------------
+
+.. automodule:: artellapipe.tools.outliner
+   :members:
+   :undoc-members:
+   :show-inheritance:

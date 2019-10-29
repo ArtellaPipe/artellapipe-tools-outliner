@@ -1,0 +1,7 @@
+artellapipe.tools.outliner.core.outlineritems module
+====================================================
+
+.. automodule:: artellapipe.tools.outliner.core.outlineritems
+   :members:
+   :undoc-members:
+   :show-inheritance:

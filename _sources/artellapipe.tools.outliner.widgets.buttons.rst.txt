@@ -1,0 +1,7 @@
+artellapipe.tools.outliner.widgets.buttons module
+=================================================
+
+.. automodule:: artellapipe.tools.outliner.widgets.buttons
+   :members:
+   :undoc-members:
+   :show-inheritance:

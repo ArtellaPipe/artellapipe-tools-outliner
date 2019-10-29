@@ -1,0 +1,19 @@
+artellapipe.tools.outliner.core package
+=======================================
+
+Submodules
+----------
+
+.. toctree::
+
+   artellapipe.tools.outliner.core.buttons
+   artellapipe.tools.outliner.core.outlineritems
+   artellapipe.tools.outliner.core.outlinertree
+
+Module contents
+---------------
+
+.. automodule:: artellapipe.tools.outliner.core
+   :members:
+   :undoc-members:
+   :show-inheritance:

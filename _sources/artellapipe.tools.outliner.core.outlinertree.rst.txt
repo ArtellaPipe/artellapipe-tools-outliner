@@ -1,0 +1,7 @@
+artellapipe.tools.outliner.core.outlinertree module
+===================================================
+
+.. automodule:: artellapipe.tools.outliner.core.outlinertree
+   :members:
+   :undoc-members:
+   :show-inheritance:
