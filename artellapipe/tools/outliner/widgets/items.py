@@ -12,6 +12,7 @@ __license__ = "MIT"
 __maintainer__ = "Tomas Poveda"
 __email__ = "tpovedatd@gmail.com"
 
+import logging
 from functools import partial
 
 from Qt.QtCore import *
@@ -31,6 +32,8 @@ if tp.is_maya():
 else:
     undo_decorator = decorators.empty_decorator
 
+LOGGER = logging.getLogger()
+
 
 class OutlinerAssetItem(outlineritems.OutlinerItem, object):
 
@@ -38,9 +41,6 @@ class OutlinerAssetItem(outlineritems.OutlinerItem, object):
 
     viewToggled = Signal(object)
     viewSolo = Signal(object, bool)
-    removed = Signal(object)
-    overrideAdded = Signal(object, object)
-    overrideRemoved = Signal(object, object)
 
     def __init__(self, asset_node, parent=None):
         super(OutlinerAssetItem, self).__init__(asset_node=asset_node, parent=parent)
@@ -74,188 +74,6 @@ class OutlinerAssetItem(outlineritems.OutlinerItem, object):
         #                 'Impossible to update type attribute because model wigdet is available!')
         #                 return
         #             model_widget.model_buttons.proxy_hires_cbx.setCurrentIndex(plug.asInt())
-
-    def _create_replace_actions(self, replace_menu):
-        """
-        Internal function that creates replacement options for current file
-        :param replace_menu: QMenu
-        :return: bool
-        """
-
-        return False
-
-    def _create_add_override_menu(self, menu):
-        """
-        Internal function that creates the add override menu
-        :param menu: QMenu
-        :return: bool
-        """
-
-        registered_overrides = shotassembler.ShotAssembler.registered_overrides()
-        if not registered_overrides:
-            return False
-
-        for override_name, override in registered_overrides.items():
-            override_action = QAction(override.OVERRIDE_ICON, override.OVERRIDE_NAME, menu)
-            if self._asset_node.has_override(override):
-                override_action.setEnabled(False)
-                override_action.setText('{} | Already added!'.format(override_action.text()))
-            override_action.triggered.connect(partial(self._on_add_override, override))
-            menu.addAction(override_action)
-
-        return True
-
-    def _create_remove_override_menu(self, menu):
-        """
-        Internal that creates the remove overrides menu
-        :param menu: QMenu
-        :return: bool
-        """
-
-        node_overrides = self._asset_node.get_overrides()
-        if not node_overrides:
-            return False
-
-        for override in node_overrides:
-            override_action = QAction(override.OVERRIDE_ICON, override.OVERRIDE_NAME, menu)
-            override_action.triggered.connect(partial(self._on_remove_override, override))
-            menu.addAction(override_action)
-
-        return True
-
-    def _create_save_override_menu(self, menu):
-        """
-        Internal function that reates the save overrides menu
-        :param menu: QMenu
-        :return: bool
-        """
-
-        node_overrides = self._asset_node.get_overrides()
-        if not node_overrides:
-            return False
-
-        added_overrides = list()
-        for override in node_overrides:
-            override_action = QAction(override.OVERRIDE_ICON, override.OVERRIDE_NAME, menu)
-            override_action.triggered.connect(partial(self._on_save_override, override))
-            added_overrides.append(override_action)
-            menu.addAction(override_action)
-
-        if len(added_overrides) > 0:
-            menu.addSeparator()
-            save_all_overrides_action = QAction(resource.ResourceManager().icon('save'), 'All', menu)
-            save_all_overrides_action.triggered.connect(self._on_save_all_overrides)
-            menu.addAction(save_all_overrides_action)
-
-        return True
-
-    def _create_menu(self, menu):
-
-        replace_icon = resource.ResourceManager().icon('replace')
-        delete_icon = resource.ResourceManager().icon('delete')
-        override_add_icon = resource.ResourceManager().icon('override_add')
-        override_delete_icon = resource.ResourceManager().icon('override_delete')
-        override_export_icon = resource.ResourceManager().icon('save')
-        load_shaders_icon = resource.ResourceManager().icon('shading_load')
-        unload_shaders_icon = resource.ResourceManager().icon('shading_unload')
-
-        replace_menu = QMenu('Replace by', self)
-        replace_menu.setIcon(replace_icon)
-        show_replace_menu = self._create_replace_actions(replace_menu)
-        if show_replace_menu:
-            menu.addMenu(replace_menu)
-
-        remove_action = QAction(delete_icon, 'Delete', menu)
-        menu.addAction(remove_action)
-        menu.addSeparator()
-
-        add_override_menu = QMenu('Add Override', menu)
-        add_override_menu.setIcon(override_add_icon)
-        valid_override = self._create_add_override_menu(add_override_menu)
-        if valid_override:
-            menu.addMenu(add_override_menu)
-
-        remove_override_menu = QMenu('Remove Override', menu)
-        remove_override_menu.setIcon(override_delete_icon)
-        has_overrides = self._create_remove_override_menu(remove_override_menu)
-        if has_overrides:
-            menu.addMenu(remove_override_menu)
-
-        save_override_menu = QMenu('Save Overrides', menu)
-        save_override_menu.setIcon(override_export_icon)
-        export_overrides = self._create_save_override_menu(save_override_menu)
-        if export_overrides:
-            menu.addMenu(save_override_menu)
-
-        if valid_override or has_overrides or export_overrides:
-            menu.addSeparator()
-
-        load_shaders_action = QAction(load_shaders_icon, 'Load Shaders', menu)
-        unload_shaders_action = QAction(unload_shaders_icon, 'Unload Shaders', menu)
-        menu.addAction(load_shaders_action)
-        menu.addAction(unload_shaders_action)
-
-        remove_action.triggered.connect(self._on_remove)
-        load_shaders_action.triggered.connect(self._on_load_shaders)
-        unload_shaders_action.triggered.connect(self._on_unload_shaders)
-
-    def _on_add_override(self, new_override):
-        """
-        Internal callback function that is called when Add Override context button is pressed
-        :param new_override: ArtellaBaseOverride
-        """
-
-        valid_override = self._asset_node.add_override(new_override)
-        if valid_override:
-            self.overrideAdded.emit(valid_override, self)
-
-    def _on_remove_override(self, override_to_remove):
-        """
-        Internal callback function that is called when Remove Override context button is pressed
-        :param override_to_remove: ArtellaBaseOverride
-        """
-
-        removed_override = self._asset_node.remove_override(override_to_remove)
-        if removed_override:
-            self.overrideRemoved.emit(removed_override, self)
-
-    def _on_save_override(self, override_to_save):
-        """
-        Internal callback function that is called when Save Override context button is pressed
-        :param override_to_save: ArtellaBaseOverride
-        """
-
-        self._asset_node.save_override(override_to_save)
-
-    def _on_save_all_overrides(self):
-        """
-        Internal callback function that is called when Save All Overrides context action is triggered
-        """
-
-        self._asset_node.save_all_overrides()
-
-    def _on_remove(self):
-        """
-        Internal callback function that is called when Delete context action is triggered
-        """
-
-        valid_remove = self._asset_node.remove()
-        if valid_remove:
-            self.removed.emit(self)
-
-    def _on_load_shaders(self):
-        """
-        Internal callback function that is called when Load Shaders context action is triggered
-        """
-
-        self._asset_node.load_shaders()
-
-    def _on_unload_shaders(self):
-        """
-        Internal callback function that is called when Unload Shaders context action is triggered
-        """
-
-        self._asset_node.unload_shaders()
 
 
 class OutlinerOverrideItem(outlineritems.OutlinerTreeItemWidget, object):

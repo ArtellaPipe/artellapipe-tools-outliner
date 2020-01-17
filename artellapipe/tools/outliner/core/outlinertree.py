@@ -30,8 +30,8 @@ class OutlinerTree(base.BaseWidget, object):
     Core class to create outliner widgets
     """
 
-    ALLOWED_TYPES = None
-    OUTLINER_NAME = None
+    CATEGORIES = None
+    NAME = None
 
     def __init__(self, project, parent=None):
 
@@ -79,24 +79,56 @@ class OutlinerTree(base.BaseWidget, object):
         self.main_layout.addWidget(self._search_widget)
 
         scroll_widget = QWidget()
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setStyleSheet('QScrollArea { background-color: rgb(57,57,57);}')
-        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll_area.setWidget(scroll_widget)
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setStyleSheet('QScrollArea { background-color: rgb(57,57,57);}')
+        self._scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self._scroll_area.setWidget(scroll_widget)
 
         self._outliner_layout = QVBoxLayout()
         self._outliner_layout.setContentsMargins(1, 1, 1, 1)
         self._outliner_layout.setSpacing(0)
         self._outliner_layout.addStretch()
         scroll_widget.setLayout(self._outliner_layout)
-        self.main_layout.addWidget(scroll_area)
+        self.main_layout.addWidget(self._scroll_area)
 
     def setup_signals(self):
         self._refresh_btn.clicked.connect(self._on_refresh_outliner)
         self._expand_all_btn.clicked.connect(self._on_expand_all_assets)
         self._collapse_all_btn.clicked.connect(self._on_collapse_all_assets)
         self._search_widget.textChanged.connect(self._on_search_text_changed)
+
+    def select_item(self, asset_id):
+        """
+        Selects item with given id
+        :param asset_id: str,
+        """
+
+        if not self._widgets:
+            return
+
+        self.clear_selection()
+
+        for asset_widget in self._widget_tree.keys():
+            if asset_widget.asset_node.id == asset_id:
+                asset_widget.blockSignals(True)
+                try:
+                    asset_widget.set_select(True)
+                    self._scroll_area.ensureWidgetVisible(asset_widget)
+                finally:
+                    asset_widget.blockSignals(False)
+
+    def clear_selection(self):
+        if not self._widgets:
+            return
+
+        for asset_widget in self._widget_tree.keys():
+            if asset_widget._is_selected:
+                asset_widget.blockSignals(True)
+                try:
+                    asset_widget.deselect()
+                finally:
+                    asset_widget.blockSignals(False)
 
     def append_widget(self, asset):
         """

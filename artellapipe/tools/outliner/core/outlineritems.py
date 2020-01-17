@@ -16,6 +16,7 @@ from Qt.QtCore import *
 from Qt.QtWidgets import *
 from Qt.QtGui import *
 
+import tpDccLib as tp
 from tpQtLib.core import base
 
 from artellapipe.utils import resource
@@ -25,13 +26,20 @@ class OutlinerTreeItemWidget(base.BaseWidget, object):
 
     clicked = Signal(QObject, QEvent)
     doubleClicked = Signal()
-    contextRequested = Signal(QObject, QAction)
+    contextRequested = Signal(QObject)
+    removed = Signal(QObject)
 
     def __init__(self, name, parent=None):
 
         self._parent = parent
         self._long_name = name
-        self._name = name.split('|')[-1]
+        ns = tp.Dcc.node_namespace(name, check_node=False)
+        if ns:
+            if ns.startswith(':'):
+                ns = ns[1:]
+        else:
+            ns = name.split('|')[-1]
+        self._name = ns
         self._block_callbacks = False
         self._is_selected = False
         self._parent_elem = None
@@ -114,8 +122,6 @@ class OutlinerItem(OutlinerTreeItemWidget, object):
     ICON_NAME = 'teapot'
     DISPLAY_BUTTONS = None
 
-    clicked = Signal(QObject, QEvent)
-
     def __init__(self, asset_node, parent=None):
 
         self._asset_node = asset_node
@@ -186,9 +192,7 @@ class OutlinerItem(OutlinerTreeItemWidget, object):
 
         menu = QMenu(self)
         menu.setStyleSheet('background-color: rgb(68,68,68);')
-        self._create_menu(menu)
-        action = menu.exec_(self.mapToGlobal(event.pos()))
-        self.contextRequested.emit(self, action)
+        self.contextRequested.emit(self)
 
     def ui(self):
         super(OutlinerItem, self).ui()
@@ -219,7 +223,6 @@ class OutlinerItem(OutlinerTreeItemWidget, object):
             self._expand_btn.setVisible(False)
 
         asset_icon = self._asset_node.get_icon()
-        print(asset_icon)
         if not asset_icon or asset_icon.isNull():
             asset_icon = resource.ResourceManager().icon(self.ICON_NAME)
         pixmap = asset_icon.pixmap(asset_icon.availableSizes()[-1]).scaled(20, 20, Qt.KeepAspectRatio)
