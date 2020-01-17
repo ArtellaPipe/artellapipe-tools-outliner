@@ -169,8 +169,96 @@
 
            <div itemprop="articleBody">
             
-  <div class="section" id="artellapipe-tools-outliner-outliner-module">
-<h1>artellapipe.tools.outliner.outliner module<a class="headerlink" href="#artellapipe-tools-outliner-outliner-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-artellapipe.tools.outliner.outliner">
+<span id="artellapipe-tools-outliner-outliner-module"></span><h1>artellapipe.tools.outliner.outliner module<a class="headerlink" href="#module-artellapipe.tools.outliner.outliner" title="Permalink to this headline">¶</a></h1>
+<p>Tool that allow to manage scene assets using Artella Pipeline</p>
+<dl class="class">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutliner">
+<em class="property">class </em><code class="sig-prename descclassname">artellapipe.tools.outliner.outliner.</code><code class="sig-name descname">ArtellaOutliner</code><span class="sig-paren">(</span><em class="sig-param">project</em>, <em class="sig-param">config</em><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutliner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">artellapipe.core.tool.Tool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutliner.staticMetaObject">
+<code class="sig-name descname">staticMetaObject</code><em class="property"> = &lt;PySide2.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutliner.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutliner.ui">
+<code class="sig-name descname">ui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutliner.ui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that sets up the ui of the widget
+Override it on new widgets (but always call super)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings">
+<em class="property">class </em><code class="sig-prename descclassname">artellapipe.tools.outliner.outliner.</code><code class="sig-name descname">ArtellaOutlinerSettings</code><span class="sig-paren">(</span><em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tpQtLib.core.base.BaseWidget</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.settingsSaved">
+<code class="sig-name descname">settingsSaved</code><em class="property"> = &lt;PySide2.QtCore.Signal object&gt;</em><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.settingsSaved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.setup_signals">
+<code class="sig-name descname">setup_signals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.setup_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that set up signals of the widget</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.staticMetaObject">
+<code class="sig-name descname">staticMetaObject</code><em class="property"> = &lt;PySide2.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.ui">
+<code class="sig-name descname">ui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerSettings.ui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that sets up the ui of the widget
+Override it on new widgets (but always call super)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget">
+<em class="property">class </em><code class="sig-prename descclassname">artellapipe.tools.outliner.outliner.</code><code class="sig-name descname">ArtellaOutlinerWidget</code><span class="sig-paren">(</span><em class="sig-param">project</em>, <em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PySide2.QtWidgets.QWidget</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.add_outliner">
+<code class="sig-name descname">add_outliner</code><span class="sig-paren">(</span><em class="sig-param">outliner_widget</em><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.add_outliner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new outliner to the stack widget
+:param outliner_widget: BaseOutliner</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.name">
+<code class="sig-name descname">name</code><em class="property"> = 'ArtellaOutlinerWidget'</em><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.staticMetaObject">
+<code class="sig-name descname">staticMetaObject</code><em class="property"> = &lt;PySide2.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.title">
+<code class="sig-name descname">title</code><em class="property"> = 'Artella Outliner'</em><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.ui">
+<code class="sig-name descname">ui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.ui" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.update_categories">
+<code class="sig-name descname">update_categories</code><span class="sig-paren">(</span><em class="sig-param">outliner_categories</em><span class="sig-paren">)</span><a class="headerlink" href="#artellapipe.tools.outliner.outliner.ArtellaOutlinerWidget.update_categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates current tag categories with the given ones
+:param outliner_categories: list(str)</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
