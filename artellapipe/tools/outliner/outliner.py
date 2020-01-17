@@ -12,20 +12,27 @@ __license__ = "MIT"
 __maintainer__ = "Tomas Poveda"
 __email__ = "tpovedatd@gmail.com"
 
-import weakref
-import logging.config
+import logging
+import inspect
+import importlib
 from functools import partial
+from collections import OrderedDict
 
 from Qt.QtCore import *
 from Qt.QtWidgets import *
 
 import tpDccLib as tp
-
+from tpPyUtils import python
 from tpQtLib.core import qtutils, base
 from tpQtLib.widgets import stack, splitters
 
+if python.is_python2():
+    import pkgutil as loader
+else:
+    import importlib as loader
+
+import artellapipe
 from artellapipe.utils import resource
-from artellapipe.core import tool
 
 # from artellapipe.utils import shader
 
@@ -50,57 +57,24 @@ class ArtellaOutlinerSettings(base.BaseWidget, object):
         self.save_btn.clicked.connect(self.settingsSaved.emit)
 
 
-class ArtellaOutlinerWidget(QWidget, object):
-
-    # Necessary to support Maya dock
-    name = 'ArtellaOutlinerWidget'
-    title = 'Artella Outliner'
-
-    _instances = list()
-
-    def __init__(self, project, parent=None):
+class ArtellaOutlinerWidget(base.BaseWidget, object):
+    def __init__(self, project, config, parent=None):
 
         self._project = project
-        self._outliners = list()
-
-        main_window = tp.Dcc.get_main_window()
-        if parent is None:
-            parent = main_window
+        self._config = config
+        self._outliners = OrderedDict()
+        self._registered_outliner_classes = OrderedDict()
 
         super(ArtellaOutlinerWidget, self).__init__(parent=parent)
 
-        if tp.is_maya():
-            ArtellaOutlinerWidget._delete_instances()
-            self.__class__._instances.append(weakref.proxy(self))
-
-        self.ui()
+        self._register_outliner_classes()
         self._create_outliners()
         self._init_outliners()
 
-    @staticmethod
-    def _delete_instances():
-        for ins in ArtellaOutlinerWidget._instances:
-            try:
-                ins.setParent(None)
-                ins.deleteLater()
-            except Exception:
-                pass
-
-            ArtellaOutlinerWidget._instances.remove(ins)
-            del ins
+        self.update_categories()
 
     def ui(self):
-
-        self.main_layout = QVBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
-
-        # if tp.is_maya():
-        #     self.parent().layout().addLayout(self.main_layout)
-        # else:
-        #     self.setLayout(self.main_layout)
-
-        self.setLayout(self.main_layout)
+        super(ArtellaOutlinerWidget, self).ui()
 
         self._toolbar = QToolBar()
         self._setup_toolbar()
@@ -128,7 +102,6 @@ class ArtellaOutlinerWidget(QWidget, object):
 
         self._tags_btn_grp = QButtonGroup(self)
         self._tags_btn_grp.setExclusive(True)
-        outliner_categories = self._project.outliner_categories.keys() if self._project else list()
 
         self._outliners_stack = stack.SlidingStackedWidget()
         self._outliner_layout.addLayout(top_layout)
@@ -140,14 +113,11 @@ class ArtellaOutlinerWidget(QWidget, object):
         self._main_stack.addWidget(self._outliner_widget)
         self._main_stack.addWidget(self._settings_widget)
 
-        self.update_categories(outliner_categories)
-
         # self.settingswidget.settingsSaved.connect(self.open_tabs)
 
-    def update_categories(self, outliner_categories):
+    def update_categories(self):
         """
         Updates current tag categories with the given ones
-        :param outliner_categories: list(str)
         """
 
         for btn in self._tags_btn_grp.buttons():
@@ -155,8 +125,13 @@ class ArtellaOutlinerWidget(QWidget, object):
 
         qtutils.clear_layout(self._tags_menu_layout)
 
+        if not self._outliners:
+            return
+
         total_buttons = 0
-        for category in reversed(outliner_categories):
+
+        categories_list = self._outliners.keys()
+        for category in categories_list:
             new_btn = QPushButton(category.title())
             new_btn.category = category
             category_icon = resource.ResourceManager().icon(category.strip().lower())
@@ -171,17 +146,18 @@ class ArtellaOutlinerWidget(QWidget, object):
                 new_btn.blockSignals(False)
             total_buttons += 1
 
-    def add_outliner(self, outliner_widget):
+    def add_outliner(self, outliner_type, outliner_widget):
         """
         Adds a new outliner to the stack widget
+        :param outliner_type: str
         :param outliner_widget: BaseOutliner
         """
 
-        if outliner_widget in self._outliners:
+        if outliner_type in self._outliners:
             LOGGER.warning('Outliner {} already exists!'.format(outliner_widget))
             return
 
-        self._outliners.append(outliner_widget)
+        self._outliners[outliner_type] = outliner_widget
         self._outliners_stack.addWidget(outliner_widget)
 
     def _setup_toolbar(self):
@@ -233,19 +209,55 @@ class ArtellaOutlinerWidget(QWidget, object):
         unload_scene_shaders_action.clicked.connect(self._on_unload_scene_shaders)
         # settings_action.clicked.connect(self.open_settings)
 
+    def register_outliner_class(self, outliner_type, outliner_class):
+        """
+        Registers a new outliner class
+        :param outliner_type: str
+        :param outliner_class: class
+        """
+
+        self._registered_outliner_classes[outliner_type] = outliner_class
+        return True
+
+    def select_asset(self, *args, **kwargs):
+        current_outliner = self._outliners_stack.currentWidget()
+        if not current_outliner:
+            return
+
+        selected_nodes = tp.Dcc.selected_nodes()
+        if not selected_nodes:
+            current_outliner.clear_selection()
+            return
+
+        selected_node = selected_nodes[0]
+        node_namespace = tp.Dcc.node_namespace(selected_node)
+        if not node_namespace:
+            return
+
+        if node_namespace.startswith('|') or node_namespace.startswith(':'):
+            node_namespace = node_namespace[1:]
+
+        current_outliner.select_item(node_namespace)
+
     def _create_outliners(self):
         """
         Internal function that creates the outliner widgets
         """
 
-        pass
+        if not self._registered_outliner_classes:
+            LOGGER.warning('No registered outliner classes found!')
+            return
+
+        for outliner_type, outliner_class in reversed(self._registered_outliner_classes.items()):
+            new_outliner = outliner_class(project=self._project)
+            self.add_outliner(outliner_type, new_outliner)
 
     def _init_outliners(self):
         """
         Internal function that initializes current outliners
         """
 
-        for outliner in self._outliners:
+        for outliner in self._outliners.values():
             outliner.refresh()
 
     def _on_load_scene_shaders(self):
@@ -273,29 +285,78 @@ class ArtellaOutlinerWidget(QWidget, object):
         for btn in self._tags_btn_grp.buttons():
             if btn == toggled_btn:
                 selected_category = toggled_btn.text()
-                for outliner in self._outliners:
-                    if outliner.OUTLINER_NAME == selected_category:
+                for outliner in self._outliners.values():
+                    if outliner.NAME == selected_category:
                         outliner_index = self._outliners_stack.indexOf(outliner)
                         self._outliners_stack.slide_in_index(outliner_index)
+                        break
+
+    def _register_outliner_classes(self):
+        """
+        Internal function that registers outliner classes
+        """
+
+        if not self._project:
+            LOGGER.warning('Impossible to register outliner classes because Artella project is not defined!')
+            return False
+
+        outliners_data = self._config.get('outliners', default=dict())
+        if not outliners_data:
+            LOGGER.warning('No outliners found in artellapipe-tools-outliner configuration file to register!')
+            return
+
+        for outliner_type, outliner_info in outliners_data.items():
+            full_outliner_class = outliner_info.get('class', None)
+            if not full_outliner_class:
+                LOGGER.warning('No class defined for Outliner Type "{}". Skipping ...'.format(outliner_type))
+                continue
+            outliner_class_split = full_outliner_class.split('.')
+            outliner_class = outliner_class_split[-1]
+            outliner_name = outliner_info.get('name', outliner_class)
+            outliner_categories = outliner_info.get('categories', list())
+            outliner_module = '.'.join(outliner_class_split[:-1])
+            LOGGER.info('Registering Outliner: {}'.format(outliner_module))
+
+            try:
+                module_loader = loader.find_loader(outliner_module)
+            except Exception as exc:
+                LOGGER.warning('Impossible to register Outliner Module: {} | {}'.format(outliner_module, exc))
+                continue
+            if not module_loader:
+                LOGGER.warning('Impossible to load Outliner Module: {}'.format(outliner_module))
+                continue
+
+            class_found = None
+            try:
+                mod = importlib.import_module(module_loader.fullname)
+            except Exception as exc:
+                LOGGER.warning('Impossible to register outliner class: {} | {}'.format(module_loader.fullname, exc))
+                continue
+
+            for cname, obj in inspect.getmembers(mod, inspect.isclass):
+                if cname == outliner_class:
+                    class_found = obj
+                    break
+
+            if not class_found:
+                LOGGER.warning('No Outliner Class "{}" found in Module: "{}"'.format(outliner_class, outliner_module))
+                continue
+
+            obj.NAME = outliner_name
+            obj.CATEGORIES = outliner_categories
+
+            self.register_outliner_class(outliner_type, obj)
+
+        return True
 
 
-class ArtellaOutliner(tool.Tool, object):
+class ArtellaOutlinerTool(artellapipe.Tool, object):
 
     def __init__(self, project, config):
-        super(ArtellaOutliner, self).__init__(project=project, config=config)
+        super(ArtellaOutlinerTool, self).__init__(project=project, config=config)
 
     def ui(self):
-        super(ArtellaOutliner, self).ui()
+        super(ArtellaOutlinerTool, self).ui()
 
-        self._outliner = ArtellaOutlinerWidget(project=self._project)
+        self._outliner = ArtellaOutlinerWidget(project=self._project, config=self.config)
         self.main_layout.addWidget(self._outliner)
-
-
-# def run(project):
-#     if tp.is_maya():
-#         win = window.dock_window(project=project, window_class=ArtellaOutlinerWidget)
-#         return win
-#     else:
-#         win = ArtellaOutliner(project=project)
-#         win.show()
-#         return win
