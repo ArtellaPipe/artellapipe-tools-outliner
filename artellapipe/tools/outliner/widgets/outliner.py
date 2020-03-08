@@ -58,15 +58,15 @@ class ArtellaOutlinerSettings(base.BaseWidget, object):
         self.save_btn.clicked.connect(self.settingsSaved.emit)
 
 
-class ArtellaOutlinerWidget(base.BaseWidget, object):
-    def __init__(self, project, config, parent=None):
+class ArtellaOutlinerWidget(artellapipe.ToolWidget, object):
+    def __init__(self, project, config, settings, parent=None):
 
         self._project = project
         self._config = config
         self._outliners = OrderedDict()
         self._registered_outliner_classes = OrderedDict()
 
-        super(ArtellaOutlinerWidget, self).__init__(parent=parent)
+        super(ArtellaOutlinerWidget, self).__init__(project=project, config=config, settings=settings, parent=parent)
 
         self._register_outliner_classes()
         self._create_outliners()
@@ -395,14 +395,3 @@ class ArtellaOutlinerWidget(base.BaseWidget, object):
 
         return True
 
-
-class ArtellaOutlinerTool(artellapipe.Tool, object):
-
-    def __init__(self, project, config):
-        super(ArtellaOutlinerTool, self).__init__(project=project, config=config)
-
-    def ui(self):
-        super(ArtellaOutlinerTool, self).ui()
-
-        self._outliner = ArtellaOutlinerWidget(project=self._project, config=self.config)
-        self.main_layout.addWidget(self._outliner)

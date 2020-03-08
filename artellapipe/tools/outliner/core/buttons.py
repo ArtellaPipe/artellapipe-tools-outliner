@@ -14,9 +14,8 @@ __email__ = "tpovedatd@gmail.com"
 
 from Qt.QtWidgets import *
 
-from tpQtLib.widgets import splitters
-
-from artellapipe.utils import resource
+import tpDcc
+from tpDcc.libs.qt.widgets import splitters
 
 
 class DisplayButtonsWidget(QWidget, object):
@@ -44,8 +43,8 @@ class DisplayButtonsWidget(QWidget, object):
 
 class AssetDisplayButtons(DisplayButtonsWidget, object):
 
-    open_eye_icon = resource.ResourceManager().icon('eye')
-    closed_eye_icon = resource.ResourceManager().icon('eye_closed')
+    open_eye_icon = tpDcc.ResourcesMgr().icon('eye')
+    closed_eye_icon = tpDcc.ResourcesMgr().icon('eye_closed')
 
     def __init__(self, parent=None):
         super(AssetDisplayButtons, self).__init__(parent=parent)
@@ -55,7 +54,7 @@ class AssetDisplayButtons(DisplayButtonsWidget, object):
         self.setMinimumWidth(25)
 
         self.view_btn = QPushButton()
-        self.view_btn.setIcon(resource.ResourceManager().icon('eye'))
+        self.view_btn.setIcon(tpDcc.ResourcesMgr().icon('eye'))
         self.view_btn.setFlat(True)
         self.view_btn.setFixedWidth(25)
         self.view_btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)

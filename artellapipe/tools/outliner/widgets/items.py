@@ -18,16 +18,15 @@ from functools import partial
 from Qt.QtCore import *
 from Qt.QtWidgets import *
 
-import tpDccLib as tp
-from tpPyUtils import decorators
-from tpQtLib.widgets import splitters
+import tpDcc as tp
+from tpDcc.libs.python import decorators
+from tpDcc.libs.qt.widgets import splitters
 
-from artellapipe.utils import resource
 from artellapipe.tools.outliner.core import outlineritems, buttons
 # from artellapipe.tools.shotmanager.apps import shotassembler
 
 if tp.is_maya():
-    from tpMayaLib.core import decorators as maya_decorators
+    from tpDcc.dccs.maya.core import decorators as maya_decorators
     undo_decorator = maya_decorators.undo_chunk
 else:
     undo_decorator = decorators.empty_decorator
@@ -100,13 +99,13 @@ class OutlinerOverrideItem(outlineritems.OutlinerTreeItemWidget, object):
         self._target_lbl = QLabel(self._name.title())
         self._editor_btn = QPushButton('Editor')
         self._editor_btn.setFlat(True)
-        self._editor_btn.setIcon(resource.ResourceManager().icon('editor'))
         self._save_btn = QPushButton()
+        self._editor_btn.setIcon(tp.ResourcesMgr().icon('editor'))
         self._save_btn.setFlat(True)
-        self._save_btn.setIcon(resource.ResourceManager().icon('save'))
+        self._save_btn.setIcon(tp.ResourcesMgr().icon('save'))
         self._delete_btn = QPushButton()
         self._delete_btn.setFlat(True)
-        self._delete_btn.setIcon(resource.ResourceManager().icon('delete'))
+        self._delete_btn.setIcon(tp.ResourcesMgr().icon('delete'))
 
         self._item_layout.addWidget(icon_lbl, 0, 1, 1, 1)
         self._item_layout.addWidget(splitters.get_horizontal_separator_widget(), 0, 2, 1, 1)
