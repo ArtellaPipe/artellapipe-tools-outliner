@@ -21,18 +21,19 @@ from collections import OrderedDict
 from Qt.QtCore import *
 from Qt.QtWidgets import *
 
-import tpDccLib as tp
-from tpPyUtils import python
-from tpQtLib.core import qtutils, base
-from tpQtLib.widgets import stack, splitters
+import tpDcc as tp
+from tpDcc.libs.python import python
+from tpDcc.libs.qt.core import qtutils, base
+from tpDcc.libs.qt.widgets import stack, splitters
 
 if python.is_python2():
     import pkgutil as loader
 else:
     import importlib as loader
 
+import tpDcc
+
 import artellapipe
-from artellapipe.utils import resource
 
 # from artellapipe.utils import shader
 
@@ -50,7 +51,7 @@ class ArtellaOutlinerSettings(base.BaseWidget, object):
         super(ArtellaOutlinerSettings, self).ui()
 
         self.save_btn = QPushButton('Save')
-        self.save_btn.setIcon(resource.ResourceManager().icon('save'))
+        self.save_btn.setIcon(tpDcc.ResourcesMgr().icon('save'))
         self.main_layout.addWidget(self.save_btn)
 
     def setup_signals(self):
@@ -134,7 +135,7 @@ class ArtellaOutlinerWidget(base.BaseWidget, object):
         for category in categories_list:
             new_btn = QPushButton(category.title())
             new_btn.category = category
-            category_icon = resource.ResourceManager().icon(category.strip().lower())
+            category_icon = tpDcc.ResourcesMgr().icon(category.strip().lower())
             new_btn.setIcon(category_icon)
             new_btn.setCheckable(True)
             new_btn.clicked.connect(partial(self._on_change_outliner, new_btn))
@@ -161,41 +162,62 @@ class ArtellaOutlinerWidget(base.BaseWidget, object):
         self._outliners_stack.addWidget(outliner_widget)
 
     def _setup_toolbar(self):
+        """
+        Internal function that setup toolbar for outliner tool
+        """
+
+        low_resolution_action = QToolButton(self)
+        low_resolution_action.setText('All Low')
+        low_resolution_action.setToolTip('Enable High Resolution Mesh in all assets in current scene')
+        low_resolution_action.setStatusTip('Enable High Resolution Mesh in all assets in current scene')
+        low_resolution_action.setIcon(tpDcc.ResourcesMgr().icon('low_poly', key='tools'))
+        low_resolution_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        high_resolution_action = QToolButton(self)
+        high_resolution_action.setText('All High')
+        high_resolution_action.setToolTip('Enable High Resolution Mesh in all assets in current scene')
+        high_resolution_action.setStatusTip('Enable High Resolution Mesh in all assets in current scene')
+        high_resolution_action.setIcon(tpDcc.ResourcesMgr().icon('high_poly'))
+        high_resolution_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
         load_scene_shaders_action = QToolButton(self)
         load_scene_shaders_action.setText('Load Shaders')
         load_scene_shaders_action.setToolTip('Load and Apply All Scene Shaders')
         load_scene_shaders_action.setStatusTip('Load and Apply All Scene Shaders')
-        load_scene_shaders_action.setIcon(resource.ResourceManager().icon('shading_load'))
+        load_scene_shaders_action.setIcon(tpDcc.ResourcesMgr().icon('shading_load'))
         load_scene_shaders_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         unload_scene_shaders_action = QToolButton(self)
         unload_scene_shaders_action.setText('Unload Shaders')
         unload_scene_shaders_action.setToolTip('Unload All Scene Shaders')
         unload_scene_shaders_action.setStatusTip('Unload All Scene Shaders')
-        unload_scene_shaders_action.setIcon(resource.ResourceManager().icon('shading_unload'))
+        unload_scene_shaders_action.setIcon(tpDcc.ResourcesMgr().icon('shading_unload'))
         unload_scene_shaders_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         update_refs_action = QToolButton(self)
         update_refs_action.setText('Sync Assets')
         update_refs_action.setToolTip('Updates all asset references to the latest published version')
         update_refs_action.setStatusTip('Updates all asset references to the latest published version')
-        update_refs_action.setIcon(resource.ResourceManager().icon('sync_cloud'))
+        update_refs_action.setIcon(tpDcc.ResourcesMgr().icon('sync_cloud'))
         update_refs_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         export_overrides_action = QToolButton(self)
         export_overrides_action.setText('Save Overrides')
         export_overrides_action.setToolTip('Stores overrides into disk')
         export_overrides_action.setStatusTip('Stores overrides into disk')
-        export_overrides_action.setIcon(resource.ResourceManager().icon('save'))
+        export_overrides_action.setIcon(tpDcc.ResourcesMgr().icon('save'))
         export_overrides_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         settings_action = QToolButton(self)
         settings_action.setText('Settings')
         settings_action.setToolTip('Outliner Settings')
         settings_action.setStatusTip('Outliner Settings')
-        settings_action.setIcon(resource.ResourceManager().icon('settings'))
+        settings_action.setIcon(tpDcc.ResourcesMgr().icon('settings'))
         settings_action.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
+        self._toolbar.addWidget(low_resolution_action)
+        self._toolbar.addWidget(high_resolution_action)
+        self._toolbar.addSeparator()
         self._toolbar.addWidget(load_scene_shaders_action)
         self._toolbar.addWidget(unload_scene_shaders_action)
         self._toolbar.addSeparator()
@@ -205,6 +227,8 @@ class ArtellaOutlinerWidget(base.BaseWidget, object):
         self._toolbar.addSeparator()
         self._toolbar.addWidget(settings_action)
 
+        low_resolution_action.clicked.connect(self._on_lowres_assets)
+        high_resolution_action.clicked.connect(self._on_hires_assets)
         load_scene_shaders_action.clicked.connect(self._on_load_scene_shaders)
         unload_scene_shaders_action.clicked.connect(self._on_unload_scene_shaders)
         # settings_action.clicked.connect(self.open_settings)
@@ -260,21 +284,43 @@ class ArtellaOutlinerWidget(base.BaseWidget, object):
         for outliner in self._outliners.values():
             outliner.refresh()
 
+    def _on_lowres_assets(self):
+        """
+        Internal function that is called when Low Res Assets menubar button is pressed
+        """
+
+        scene_assets = artellapipe.AssetsMgr().get_scene_assets()
+        if not scene_assets:
+            return
+
+        for scene_asset in scene_assets:
+            scene_asset.switch_to_proxy()
+
+    def _on_hires_assets(self):
+        """
+        Internal function that is called when High Res Assets menubar button is pressed
+        """
+
+        scene_assets = artellapipe.AssetsMgr().get_scene_assets()
+        if not scene_assets:
+            return
+
+        for scene_asset in scene_assets:
+            scene_asset.switch_to_hires()
+
     def _on_load_scene_shaders(self):
         """
         Internal callback function that is called when Load Scene Shaders menubar button is pressed
         """
 
-        LOGGER.warning('Load Shaders functionality not available!')
-        # shader.load_scene_shaders(project=self._project)
+        artellapipe.ShadersMgr().load_scene_shaders()
 
     def _on_unload_scene_shaders(self):
         """
         Internal callback function that is called when Unload Scene Shaders menubar button is pressed
         """
 
-        LOGGER.warning('Unload Shaders functionality not available')
-        # shader.unload_shaders(project=self._project)
+        artellapipe.ShadersMgr().unload_shaders()
 
     def _on_change_outliner(self, toggled_btn):
         """
