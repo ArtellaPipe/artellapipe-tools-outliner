@@ -7,6 +7,7 @@ Submodules
 .. toctree::
 
    artellapipe.tools.outliner.core.buttons
+   artellapipe.tools.outliner.core.outliner
    artellapipe.tools.outliner.core.outlineritems
    artellapipe.tools.outliner.core.outlinertree
 

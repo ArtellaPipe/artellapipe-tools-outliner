@@ -9,13 +9,6 @@ Subpackages
    artellapipe.tools.outliner.core
    artellapipe.tools.outliner.widgets
 
-Submodules
-----------
-
-.. toctree::
-
-   artellapipe.tools.outliner.outliner
-
 Module contents
 ---------------
 

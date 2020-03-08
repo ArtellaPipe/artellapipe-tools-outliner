@@ -9,6 +9,7 @@ Submodules
    artellapipe.tools.outliner.widgets.baseoutliner
    artellapipe.tools.outliner.widgets.buttons
    artellapipe.tools.outliner.widgets.items
+   artellapipe.tools.outliner.widgets.outliner
 
 Module contents
 ---------------
