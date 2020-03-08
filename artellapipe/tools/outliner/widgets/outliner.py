@@ -394,4 +394,3 @@ class ArtellaOutlinerWidget(artellapipe.ToolWidget, object):
             self.register_outliner_class(outliner_type, obj)
 
         return True
-
