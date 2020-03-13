@@ -1,2 +1,2 @@
 include artellapipe/tools/outliner/__logging__.ini
-include artellapipe/tools/outliner/resources/icons/color/*.*
+recursive-include artellapipe/tools/outliner/resources/* *.*
