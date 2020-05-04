@@ -20,7 +20,7 @@ from Qt.QtWidgets import *
 
 import tpDcc as tp
 from tpDcc.libs.python import decorators
-from tpDcc.libs.qt.widgets import splitters
+from tpDcc.libs.qt.widgets import dividers
 
 from artellapipe.tools.outliner.core import outlineritems, buttons
 # from artellapipe.tools.shotmanager.apps import shotassembler
@@ -108,9 +108,9 @@ class OutlinerOverrideItem(outlineritems.OutlinerTreeItemWidget, object):
         self._delete_btn.setIcon(tp.ResourcesMgr().icon('delete'))
 
         self._item_layout.addWidget(icon_lbl, 0, 1, 1, 1)
-        self._item_layout.addWidget(splitters.get_horizontal_separator_widget(), 0, 2, 1, 1)
+        self._item_layout.addWidget(dividers.get_horizontal_separator_widget(), 0, 2, 1, 1)
         self._item_layout.addWidget(self._target_lbl, 0, 3, 1, 1)
-        self._item_layout.addWidget(splitters.get_horizontal_separator_widget(), 0, 4, 1, 1)
+        self._item_layout.addWidget(dividers.get_horizontal_separator_widget(), 0, 4, 1, 1)
         self._item_layout.addWidget(self._editor_btn, 0, 5, 1, 1)
         self._item_layout.setColumnStretch(6, 7)
         self._item_layout.addWidget(self._save_btn, 0, 8, 1, 1)

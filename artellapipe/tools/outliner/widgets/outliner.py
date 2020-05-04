@@ -24,7 +24,7 @@ from Qt.QtWidgets import *
 import tpDcc as tp
 from tpDcc.libs.python import python
 from tpDcc.libs.qt.core import qtutils, base
-from tpDcc.libs.qt.widgets import stack, splitters
+from tpDcc.libs.qt.widgets import stack, dividers
 
 if python.is_python2():
     import pkgutil as loader
@@ -106,7 +106,7 @@ class ArtellaOutlinerWidget(artellapipe.ToolWidget, object):
 
         self._outliners_stack = stack.SlidingStackedWidget()
         self._outliner_layout.addLayout(top_layout)
-        self._outliner_layout.addLayout(splitters.SplitterLayout())
+        self._outliner_layout.addLayout(dividers.DividerLayout())
         self._outliner_layout.addWidget(self._outliners_stack)
 
         self._settings_widget = ArtellaOutlinerSettings()

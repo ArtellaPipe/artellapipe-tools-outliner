@@ -15,7 +15,7 @@ __email__ = "tpovedatd@gmail.com"
 from Qt.QtWidgets import *
 
 import tpDcc
-from tpDcc.libs.qt.widgets import splitters
+from tpDcc.libs.qt.widgets import dividers
 
 
 class DisplayButtonsWidget(QWidget, object):
@@ -60,7 +60,7 @@ class AssetDisplayButtons(DisplayButtonsWidget, object):
         self.view_btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         self.main_layout.addWidget(self.view_btn)
 
-        self.main_layout.addWidget(splitters.get_horizontal_separator_widget())
+        self.main_layout.addWidget(dividers.get_horizontal_separator_widget())
 
     def show(self):
         """
