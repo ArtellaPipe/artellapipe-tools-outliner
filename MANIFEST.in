@@ -1,2 +1,4 @@
 include artellapipe/tools/outliner/__logging__.ini
 recursive-include artellapipe/tools/outliner/resources/* *.*
+include versioneer.py
+include artellapipe/tools/outliner/_version.py
