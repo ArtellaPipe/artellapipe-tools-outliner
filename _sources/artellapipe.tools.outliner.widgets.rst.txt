@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    artellapipe.tools.outliner.widgets.baseoutliner
    artellapipe.tools.outliner.widgets.buttons
